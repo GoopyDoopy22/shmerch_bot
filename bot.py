@@ -1,4 +1,3 @@
-cd /root/shmerch_bot && cat > bot.py << 'EOF'
 import os
 import logging
 import time
@@ -11,7 +10,7 @@ import io
 logging.basicConfig(level=logging.INFO)
 
 # ================ НАСТРОЙКИ ================
-BOT_TOKEN = "7650289555:AAGnpjQ6-C2tg6I8ey4yiJFCUQopY7kp2AA"
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "7650289555:AAGnpjQ6-C2tg6I8ey4yiJFCUQopY7kp2AA")
 PRICE_STARS = 5
 ITEMS_PER_PAGE = 6
 ITEMS_PER_ROW = 3
@@ -20,7 +19,7 @@ ITEMS_PER_ROW = 3
 def load_items():
     items = {}
     categories = ['body', 'eyes', 'mouth', 'hair', 'glasses', 'hat']
-    base_path = '/root/shmerch_bot/images'
+    base_path = '/app/images'  # Изменил путь для Railway
     for category in categories:
         category_path = os.path.join(base_path, category)
         items[category] = []
@@ -131,7 +130,7 @@ async def show_category_preview(update: Update, context: ContextTypes.DEFAULT_TY
     keyboard = []
     
     for i, item in enumerate(page_items):
-        file_path = f"/root/shmerch_bot/images/{category}/{item}"
+        file_path = f"/app/images/{category}/{item}"
         try:
             img = Image.open(file_path)
             img.thumbnail((200, 200))
@@ -205,7 +204,7 @@ async def generate_image_from_selections(selections, watermark=True):
     
     for category in order:
         if category in selections:
-            file_path = f"/root/shmerch_bot/images/{category}/{selections[category]}"
+            file_path = f"/app/images/{category}/{selections[category]}"
             if os.path.exists(file_path):
                 img = Image.open(file_path).convert('RGBA')
                 if result is None:
@@ -312,4 +311,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-EOF
