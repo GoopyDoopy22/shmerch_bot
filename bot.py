@@ -9,7 +9,7 @@ import io
 
 logging.basicConfig(level=logging.INFO)
 
-# ================ НАСТРОЙКИ ================
+# ================ CONFIGURATION ================
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "7650289555:AAGnpjQ6-C2tg6I8ey4yiJFCUQopY7kp2AA")
 PRICE_STARS = 5
 ITEMS_PER_PAGE = 6
@@ -34,12 +34,12 @@ user_current_pages = {}
 user_last_message_ids = {}
 
 category_names = {
-    'body': 'Тело',
-    'eyes': 'Глаза',
-    'mouth': 'Рот',
-    'hair': 'Прическа',
-    'glasses': 'Очки',
-    'hat': 'Шапка'
+    'body': 'Body',
+    'eyes': 'Eyes',
+    'mouth': 'Mouth',
+    'hair': 'Hair',
+    'glasses': 'Glasses',
+    'hat': 'Hat'
 }
 
 async def clean_previous_messages(update, context, except_message_id=None):
@@ -68,17 +68,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
-        [InlineKeyboardButton("🧱 Тело", callback_data="cat_body")],
-        [InlineKeyboardButton("👁 Глаза", callback_data="cat_eyes")],
-        [InlineKeyboardButton("👄 Рот", callback_data="cat_mouth")],
-        [InlineKeyboardButton("💇 Прическа", callback_data="cat_hair")],
-        [InlineKeyboardButton("👓 Очки", callback_data="cat_glasses")],
-        [InlineKeyboardButton("🎩 Шапка", callback_data="cat_hat")],
-        [InlineKeyboardButton("🔄 Сбросить всё", callback_data="reset"),
-         InlineKeyboardButton("✅ Готово", callback_data="done")]
+        [InlineKeyboardButton("🧱 Body", callback_data="cat_body")],
+        [InlineKeyboardButton("👁 Eyes", callback_data="cat_eyes")],
+        [InlineKeyboardButton("👄 Mouth", callback_data="cat_mouth")],
+        [InlineKeyboardButton("💇 Hair", callback_data="cat_hair")],
+        [InlineKeyboardButton("👓 Glasses", callback_data="cat_glasses")],
+        [InlineKeyboardButton("🎩 Hat", callback_data="cat_hat")],
+        [InlineKeyboardButton("🔄 Reset All", callback_data="reset"),
+         InlineKeyboardButton("✅ Done", callback_data="done")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
-    text = "🎨 **Shmerch Avatar Maker**\n\nВыбирай детали для своего персонажа:"
+    text = "🎨 **Shmerch Avatar Maker**\n\nChoose your character details:"
     
     if update.callback_query:
         sent_message = await update.callback_query.edit_message_text(text, reply_markup=reply_markup, parse_mode='Markdown')
@@ -100,7 +100,7 @@ async def menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif data == "reset":
         user_selections[user_id] = {}
         await clean_previous_messages(update, context)
-        await query.edit_message_text("✅ Все выборы сброшены")
+        await query.edit_message_text("✅ All selections reset")
         await show_main_menu(update, context)
     elif data == "done":
         await show_result(update, context)
@@ -115,7 +115,7 @@ async def show_category_preview(update: Update, context: ContextTypes.DEFAULT_TY
     items = ITEMS.get(category, [])
     
     if not items:
-        await query.edit_message_text(f"❌ В категории {category} пока нет предметов")
+        await query.edit_message_text(f"❌ No items in {category} yet")
         await show_main_menu(update, context)
         return
     
@@ -145,19 +145,19 @@ async def show_category_preview(update: Update, context: ContextTypes.DEFAULT_TY
             row_pos = i // ITEMS_PER_ROW
             if len(keyboard) <= row_pos:
                 keyboard.append([])
-            keyboard[row_pos].append(InlineKeyboardButton(f"✅ Выбрать {i+1}", callback_data=callback))
+            keyboard[row_pos].append(InlineKeyboardButton(f"✅ Select {i+1}", callback_data=callback))
         except:
             pass
     
     nav_buttons = []
     if page > 0:
-        nav_buttons.append(InlineKeyboardButton("◀️ Предыдущая", callback_data=f"page_{category}_{page-1}"))
+        nav_buttons.append(InlineKeyboardButton("◀️ Previous", callback_data=f"page_{category}_{page-1}"))
     if end_idx < len(items):
-        nav_buttons.append(InlineKeyboardButton("Следующая ▶️", callback_data=f"page_{category}_{page+1}"))
+        nav_buttons.append(InlineKeyboardButton("Next ▶️", callback_data=f"page_{category}_{page+1}"))
     if nav_buttons:
         keyboard.append(nav_buttons)
     
-    keyboard.append([InlineKeyboardButton("🔙 Назад в меню", callback_data="back_to_main")])
+    keyboard.append([InlineKeyboardButton("🔙 Back to Menu", callback_data="back_to_main")])
     
     if media_group:
         sent_media = await context.bot.send_media_group(chat_id=user_id, media=media_group)
@@ -166,7 +166,7 @@ async def show_category_preview(update: Update, context: ContextTypes.DEFAULT_TY
     
     sent_message = await context.bot.send_message(
         chat_id=user_id,
-        text=f"{category_names.get(category, category)} — стр.{page+1}",
+        text=f"{category_names.get(category, category)} — Page {page+1}",
         reply_markup=InlineKeyboardMarkup(keyboard)
     )
     await save_message_id(user_id, sent_message.message_id)
@@ -184,7 +184,7 @@ async def select_item(update: Update, context: ContextTypes.DEFAULT_TYPE, data):
     user_selections[user_id][category] = filename
     
     await clean_previous_messages(update, context, except_message_id=query.message.message_id)
-    await query.edit_message_text(f"✅ {category_names.get(category, category)} выбран")
+    await query.edit_message_text(f"✅ {category_names.get(category, category)} selected")
     await save_message_id(user_id, query.message.message_id)
     await show_main_menu(update, context)
 
@@ -236,7 +236,7 @@ async def show_result(update: Update, context: ContextTypes.DEFAULT_TYPE):
     selections = user_selections.get(user_id, {})
     
     if not selections:
-        await query.edit_message_text("❌ Ничего не выбрано")
+        await query.edit_message_text("❌ Nothing selected")
         return
     
     await clean_previous_messages(update, context, except_message_id=query.message.message_id)
@@ -248,23 +248,23 @@ async def show_result(update: Update, context: ContextTypes.DEFAULT_TYPE):
             result.save(bio, 'PNG')
             bio.seek(0)
             
-            await query.edit_message_text("🎉 Твой Shmerch готов! (с водяным знаком)")
+            await query.edit_message_text("🎉 Your Shmerch is ready! (with watermark)")
             sent_photo = await context.bot.send_photo(chat_id=user_id, photo=bio)
             await save_message_id(user_id, sent_photo.message_id)
             
-            # ПЛАТЕЖИ ЧЕРЕЗ TELEGRAM STARS
+            # PAYMENT VIA TELEGRAM STARS
             await context.bot.send_invoice(
                 chat_id=user_id,
                 title="Shmerch Avatar",
-                description="Чистое изображение без водяного знака",
+                description="Clean image without watermark",
                 payload=f"stars_{user_id}_{int(time.time())}",
                 provider_token="",
                 currency="XTR",
-                prices=[LabeledPrice("Аватар", PRICE_STARS)]
+                prices=[LabeledPrice("Avatar", PRICE_STARS)]
             )
             
     except Exception as e:
-        await query.edit_message_text(f"❌ Ошибка: {e}")
+        await query.edit_message_text(f"❌ Error: {e}")
 
 async def pre_checkout(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.pre_checkout_query.answer(ok=True)
@@ -274,7 +274,7 @@ async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
     selections = user_selections.get(user_id, {})
     
     if not selections:
-        await update.message.reply_text("❌ Ошибка: данные не найдены")
+        await update.message.reply_text("❌ Error: data not found")
         return
     
     result = await generate_image_from_selections(selections, watermark=False)
@@ -283,7 +283,7 @@ async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
         result.save(bio, 'PNG')
         bio.seek(0)
         
-        await update.message.reply_text("✅ Оплата прошла! Держи чистое изображение:")
+        await update.message.reply_text("✅ Payment successful! Here's your clean image:")
         await context.bot.send_photo(chat_id=user_id, photo=bio)
 
 async def back_to_main(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -299,12 +299,12 @@ def main():
     app.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment))
     
     print("\n" + "="*60)
-    print("✅ Shmerch Bot ЗАПУЩЕН!")
-    print(f"💰 Цена: {PRICE_STARS} ⭐")
-    print("⭐ Telegram Stars: ПОДКЛЮЧЕНЫ")
-    print(f"📁 Категорий: {len(ITEMS)}")
+    print("✅ Shmerch Bot is RUNNING!")
+    print(f"💰 Price: {PRICE_STARS} ⭐")
+    print("⭐ Telegram Stars: CONNECTED")
+    print(f"📁 Categories: {len(ITEMS)}")
     for cat, items in ITEMS.items():
-        print(f"   • {cat}: {len(items)} предметов")
+        print(f"   • {cat}: {len(items)} items")
     print("="*60 + "\n")
     
     app.run_polling()
