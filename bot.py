@@ -18,7 +18,7 @@ ITEMS_PER_ROW = 3
 
 def load_items():
     items = {}
-    categories = ['body', 'eyes', 'mouth', 'hair', 'glasses', 'hat']
+    categories = ['backgrounds', 'body', 'eyes', 'mouth', 'hair', 'glasses', 'hat']
     base_path = '/app/images'
     for category in categories:
         category_path = os.path.join(base_path, category)
@@ -34,6 +34,7 @@ user_current_pages = {}
 user_last_message_ids = {}
 
 category_names = {
+    'backgrounds': 'Background',
     'body': 'Body',
     'eyes': 'Eyes',
     'mouth': 'Mouth',
@@ -68,6 +69,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
+        [InlineKeyboardButton("🖼 Background", callback_data="cat_backgrounds")],
         [InlineKeyboardButton("🧱 Body", callback_data="cat_body")],
         [InlineKeyboardButton("👁 Eyes", callback_data="cat_eyes")],
         [InlineKeyboardButton("👄 Mouth", callback_data="cat_mouth")],
@@ -200,7 +202,7 @@ async def change_page(update: Update, context: ContextTypes.DEFAULT_TYPE, data):
 
 async def generate_image_from_selections(selections, watermark=True):
     result = None
-    order = ['body', 'eyes', 'mouth', 'hair', 'glasses', 'hat']
+    order = ['backgrounds', 'body', 'eyes', 'mouth', 'hair', 'glasses', 'hat']
     
     for category in order:
         if category in selections:
