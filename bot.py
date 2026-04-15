@@ -19,7 +19,7 @@ ITEMS_PER_ROW = 3
 def load_items():
     items = {}
     categories = ['body', 'eyes', 'mouth', 'hair', 'glasses', 'hat']
-    base_path = '/app/images'  # Изменил путь для Railway
+    base_path = '/app/images'
     for category in categories:
         category_path = os.path.join(base_path, category)
         items[category] = []
